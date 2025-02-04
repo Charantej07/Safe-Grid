@@ -1,22 +1,25 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
-require("dotenv").config();
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
 
-//Middleware
+dotenv.config(); // Load environment variables
+connectDB(); // Connect to MongoDB
+
+const app = express();
 app.use(express.json());
 app.use(cors());
 
-//connect to MongoDB
+// Import routes
+const authRoutes = require("./routes/authRoutes");
+const cameraRoutes = require("./routes/cameraRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
-const connectDB = require('./config/db');
-connectDB();
+// Use routes
+app.use("/api/auth", authRoutes);
+app.use("/api/camera", cameraRoutes);
+//app.use("/api/ai", aiRoutes);
 
-//Import Routes
-
-//Use Routes
-
-//start server
-
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
