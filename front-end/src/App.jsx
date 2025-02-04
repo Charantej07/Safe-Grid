@@ -1,13 +1,27 @@
-import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { useSelector } from "react-redux";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import LiveFeed from "./pages/LiveFeed";
+import IncidentLogs from "./pages/IncidentLogs";
 
-const App = () => {
+function App() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   return (
-    <div>
-      <div className="container bg-red-600">
-        <h1>Hello Tailwind Css</h1>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        {isAuthenticated && (
+          <>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/live-feed" element={<LiveFeed />} />
+            <Route path="/incident-logs" element={<IncidentLogs />} />
+          </>
+        )}
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
