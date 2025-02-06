@@ -5,6 +5,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import LiveFeed from "./pages/LiveFeed";
 import IncidentLogs from "./pages/IncidentLogs";
+import Home from "./pages/Home";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -12,6 +13,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Home/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         {isAuthenticated && (
