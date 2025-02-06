@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 
 const LiveFeed = () => {
   const [cameras, setCameras] = useState([]);
+  const token = useSelector((state) => state.auth.token); // Get token from Redux
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/camera/all").then((res) => {
-      setCameras(res.data);
-    });
-  }, []);
+    const fetchCameras = async () => {
+      try {
+        if (!token) return; // Ensure token exists
+
+        const res = await axios.get("http://localhost:5000/api/camera/all", {
+          headers: { Authorization: `${token}` },
+        });
+
+        setCameras(res.data);
+      } catch (error) {
+        console.error("Error fetching cameras:", error.response?.data?.message);
+      }
+    };
+
+    fetchCameras();
+  }, [token]);
 
   return (
     <div className="flex">
