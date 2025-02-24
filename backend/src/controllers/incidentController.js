@@ -3,22 +3,26 @@ const Incident = require("../models/incidentModel");
 // Get All Incident Logs
 exports.getAllIncidents = async (req, res) => {
   try {
-    const incidents = await Incident.find().populate("camera_id");
-    console.log(incidents);
-    res.json(
-      incidents.map((incident) => ({
-        _id: incident._id,
-        camera_id: incident.camera_id,
-        confidence_score: incident.confidence_score,
-        video_url: incident.video_url, // Return video URL
-        status: incident.status,
-        createdAt: incident.createdAt,
-      }))
-    );
+    const { status, page = 1, limit = 10 } = req.query;
+    const filter = status ? { status } : {};
+
+    const incidents = await Incident.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    const total = await Incident.countDocuments(filter);
+
+    res.json({
+      incidents,
+      totalPages: Math.ceil(total / limit),
+      currentPage: Number(page),
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // Mark Incident as Resolved
 exports.resolveIncident = async (req, res) => {

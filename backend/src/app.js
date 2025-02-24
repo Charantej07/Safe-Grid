@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const { Server } = require("socket.io");
@@ -10,6 +11,7 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -17,8 +19,21 @@ const io = new Server(server, {
   },
 });
 
+const corsOptions = {
+  origin: "http://localhost:5173",
+  methods: "GET,POST,PUT,DELETE",
+};
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests
+  message: "Too many requests from this IP, please try again later.",
+});
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
+app.use(limiter);
+
 
 // WebSocket Connection
 io.on("connection", (socket) => {
@@ -42,3 +57,4 @@ app.use("/api/incidents", incidentRoutes);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
