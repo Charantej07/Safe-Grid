@@ -30,9 +30,24 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
+const morgan = require("morgan");
+const winston = require("winston");
+
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.File({ filename: "logs/api.log" }),
+    new winston.transports.Console(),
+  ],
+});
+
+
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(limiter);
+app.use(
+  morgan("combined", { stream: { write: (message) => logger.info(message) } })
+);
+
 
 
 // WebSocket Connection
