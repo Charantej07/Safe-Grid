@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 // Register User
 exports.register = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
 
     // Check if user exists
     let user = await User.findOne({ username });
@@ -15,8 +15,12 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create User
-    user = new User({ username, password: hashedPassword });
+    const validRoles = ["admin", "security", "user"];
+    const assignedRole = validRoles.includes(role) ? role : "user";
+
+    // Create User with Correct Role
+    user = new User({ username, password: hashedPassword, role: assignedRole });
+
     await user.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -39,10 +43,14 @@ exports.login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid Credentials" });
 
+    console.log("user: ", user);
+
     // Generate JWT Token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
     res.json({ token });
   } catch (error) {
