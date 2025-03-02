@@ -1,5 +1,3 @@
-module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 const incidentController = require("../controllers/incidentController");
@@ -17,8 +15,14 @@ router.get(
 router.put(
   "/:id/resolve",
   authenticate,
-  authorizeRoles("security"),
+  authorizeRoles("admin","security"),
   incidentController.resolveIncident
+);
+router.delete(
+  "/:id",
+  authenticate,
+  authorizeRoles("admin"),
+  incidentController.deleteIncident
 );
 
 module.exports = router;

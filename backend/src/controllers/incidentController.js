@@ -23,7 +23,6 @@ exports.getAllIncidents = async (req, res) => {
   }
 };
 
-
 // Mark Incident as Resolved
 exports.resolveIncident = async (req, res) => {
   try {
@@ -36,6 +35,25 @@ exports.resolveIncident = async (req, res) => {
     await incident.save();
 
     res.json({ message: "Incident marked as resolved", incident });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.deleteIncident = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the incident exists
+    const incident = await Incident.findById(id);
+    if (!incident) {
+      return res.status(404).json({ message: "Incident not found" });
+    }
+
+    // Delete the incident
+    await Incident.findByIdAndDelete(id);
+
+    res.json({ message: "Incident deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
