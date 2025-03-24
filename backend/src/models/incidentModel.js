@@ -7,7 +7,8 @@ const incidentSchema = new mongoose.Schema({
     required: true,
   },
   confidence_score: { type: Number, required: true },
-  video_url: { type: String, required: false }, // Changed from image_url to video_url
+  video_url: { type: String, required: false },
+  storage_type: { type: String, enum: ["local", "cloud"], default: "local" }, // New field
   status: {
     type: String,
     enum: ["Unresolved", "Resolved"],

@@ -58,3 +58,33 @@ exports.deleteIncident = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+exports.uploadIncidentVideo = async (req, res) => {
+  try {
+    // Check if file is uploaded
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const { camera_id, confidence_score } = req.body;
+
+    // Save incident to database
+    const newIncident = new Incident({
+      camera_id,
+      confidence_score,
+      video_url: req.files.file[0].location, 
+      storage_type: "cloud",
+      status: "Unresolved",
+    });
+    await newIncident.save();
+ 
+    res.json({
+      message: "Incident video uploaded successfully",
+      video_url: req.files.file[0].location, 
+    });
+  } catch (err) {
+    // Handle errors
+    console.error("Error uploading incident video: ", err);
+    res.status(500).json({ message: "Upload failed", error: err });
+  }
+};
