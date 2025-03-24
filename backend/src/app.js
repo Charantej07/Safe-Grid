@@ -9,6 +9,14 @@ const { Server } = require("socket.io");
 dotenv.config();
 connectDB();
 
+console.log("🔹 AWS Access Key:", process.env.AWS_ACCESS_KEY_ID || "NOT SET");
+console.log(
+  "🔹 AWS Secret Key:",
+  process.env.AWS_SECRET_ACCESS_KEY ? "SET" : "NOT SET"
+);
+console.log("🔹 AWS Bucket:", process.env.AWS_BUCKET_NAME || "NOT SET");
+console.log("🔹 AWS Region:", process.env.AWS_REGION || "NOT SET");
+
 const app = express();
 const server = http.createServer(app);
 
@@ -30,8 +38,13 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
+const bodyParser = require("body-parser");
+
 const morgan = require("morgan");
 const winston = require("winston");
+const compression = require("compression");
+const helmet = require("helmet");
+const { exec } = require("child_process");
 
 const logger = winston.createLogger({
   transports: [
@@ -40,15 +53,18 @@ const logger = winston.createLogger({
   ],
 });
 
-
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Ensure form-data is parsed
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(cors(corsOptions));
 app.use(limiter);
+app.use(compression());
+app.use(helmet());
 app.use(
   morgan("combined", { stream: { write: (message) => logger.info(message) } })
 );
-
-
 
 // WebSocket Connection
 io.on("connection", (socket) => {
@@ -67,9 +83,8 @@ const incidentRoutes = require("./routes/incidentRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/camera", cameraRoutes);
-app.use("/api/ai", aiRoutes);
+app.use("/api/ai", aiRoutes); 
 app.use("/api/incidents", incidentRoutes);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
