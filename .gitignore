@@ -1,1 +1,7 @@
 */node_modules/
+
+# Ignore .vite directory inside front-end
+front-end/.vite/
+
+*/.env
+backend/.env

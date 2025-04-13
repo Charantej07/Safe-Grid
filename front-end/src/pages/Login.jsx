@@ -1,68 +1,18 @@
-// import React, { useState } from "react";
-// import { useDispatch } from "react-redux";
-// import { loginSuccess } from "../redux/slices/authSlice";
-// import { loginUser } from "../api/authApi";
-// import { useNavigate } from "react-router-dom";
-
-// const Login = () => {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [error, setError] = useState(null);
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const handleLogin = async () => {
-//     try {
-//       const data = await loginUser(username, password);
-//       dispatch(loginSuccess({ user: data.user, token: data.token }));
-//       navigate("/dashboard");
-//     } catch (err) {
-//       setError(err);
-//     }
-//   };
-
-//   return (
-//     <div className="flex justify-center items-center h-screen bg-gray-100">
-//       <div className="w-96 p-6 bg-white shadow-md rounded-lg">
-//         <h2 className="text-2xl font-semibold text-center mb-4">SafeGrid Login</h2>
-//         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-//         <input
-//           type="text"
-//           placeholder="Username"
-//           value={username}
-//           onChange={(e) => setUsername(e.target.value)}
-//           className="w-full p-2 border rounded mb-2"
-//         />
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           className="w-full p-2 border rounded mb-4"
-//         />
-//         <button onClick={handleLogin} className="w-full bg-blue-500 text-white py-2 rounded">
-//           Login
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Login;
-
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/slices/authSlice";
 import { loginUser } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
 import { FaGoogle, FaApple } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleLogin = async () => {
     try {
@@ -106,13 +56,22 @@ const Login = () => {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-3 mb-3 bg-gray-800 border border-gray-700 rounded text-white"
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 bg-gray-800 border border-gray-700 rounded text-white"
-        />
+        <div className="relative w-full">
+            <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 pr-12 mb-4 bg-gray-800 border border-gray-700 rounded text-white"
+            />
+            <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute top-1/2 right-4 transform -translate-y-3/4 text-gray-400 hover:text-gray-200"
+            >
+                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+            </button>
+        </div>
 
         <div className="flex justify-between text-sm mb-4">
           <label className="flex items-center">
@@ -129,13 +88,19 @@ const Login = () => {
         </button>
 
         <p className="mt-4 text-sm text-gray-400">
-          Don't have an account? <a href="#" className="text-blue-400 hover:underline">Sign up</a>
+          Don't have an account?{" "}
+          <span 
+            className="text-blue-400 hover:underline cursor-pointer"
+            onClick={() => navigate("/signup")}
+          >
+            Sign up
+          </span>
         </p>
       </div>
 
       {/* Right side - Image / Info */}
       <div className="w-1/2 bg-blue-600 flex flex-col justify-center p-16 text-white">
-        <h2 className="text-3xl font-bold mb-4">Safe Grid - AI powered real time threat detection</h2>
+        <h2 className="text-3xl font-bold mb-4">Safe Grid - AI powered real-time threat detection</h2>
         <p className="text-lg">
             Safe Grid is an AI-powered real-time threat detection system designed to enhance security by instantly identifying and responding to potential risks.
         </p>
