@@ -77,6 +77,19 @@ exports.uploadIncidentVideo = async (req, res) => {
       status: "Unresolved",
     });
     await newIncident.save();
+    const { io } = require("../app");
+    const { sendAlert } = require("../config/twilio");
+
+    io.emit("new_alert", {
+      message: `⚠️ Threat detected at Camera ${camera_id}. Confidence: ${confidence_score}%`,
+      confidence_score,
+      video_url: req.files.file[0].location,
+    });
+
+    sendAlert(
+      `⚠️ Threat detected at Camera ${camera_id}. Confidence: ${confidence_score}%. Watch: ${req.files.file[0].location}`
+    );
+
  
     res.json({
       message: "Incident video uploaded successfully",
