@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run python\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "backend": "nodemon src/app.js",
+    "python": "python src/services/youtube_inference.py"
   },
   "keywords": [],
   "author": "",
@@ -37,6 +39,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.9"
   }
 }

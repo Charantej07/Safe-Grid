@@ -5,3 +5,4 @@ front-end/.vite/
 
 */.env
 backend/.env
+backend/videos
