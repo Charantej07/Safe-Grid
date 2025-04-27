@@ -13,30 +13,45 @@ const IncidentLogs = () => {
   useEffect(() => {
     try {
       if (!token) return;
-      axios.get(`http://localhost:5000/api/incidents/all?status=${status}&page=${page}`, {
-        headers: { Authorization: `${token}` },
-      }).then((res) => {
-          console.log("Checking the incidents response ",res);
+      axios
+        .get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/incidents/all?status=${status}&page=${page}`,
+          {
+            headers: { Authorization: `${token}` },
+          }
+        )
+        .then((res) => {
+          console.log("Checking the incidents response ", res);
           setIncidents(res.data.incidents);
           setTotalPages(res.data.totalPages);
-      });
+        });
     } catch (error) {
       console.error("Error fetching Incident Logs: ", error.response?.data?.message);
     }
   }, [status, page]);
 
   const resolveIncident = (id) => {
-    axios.put(
-      `http://localhost:5000/api/incidents/${id}/resolve`, 
-      {},
-      { headers: { Authorization: `${token}` } }
-    ).then(() => {
-      setIncidents(incidents.map((incident) =>
-        incident._id === id ? { ...incident, status: "Resolved" } : incident
-      ));
-    }).catch((error) => {
-      console.error("Error resolving incident:", error.response?.data?.message);
-    });
+    axios
+      .put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/incidents/${id}/resolve`,
+        {},
+        { headers: { Authorization: `${token}` } }
+      )
+      .then(() => {
+        setIncidents(
+          incidents.map((incident) =>
+            incident._id === id ? { ...incident, status: "Resolved" } : incident
+          )
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "Error resolving incident:",
+          error.response?.data?.message
+        );
+      });
   };
 
   return (

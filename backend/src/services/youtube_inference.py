@@ -31,6 +31,7 @@ def get_best_stream_url(url):
         return info_dict.get("url", None)
 
 stream_url = get_best_stream_url(YOUTUBE_URL)
+print("stream url", stream_url)
 if not stream_url:
     print("[ERROR] Could not get stream URL")
     exit()
@@ -56,9 +57,9 @@ def upload_incident(video_path, score):
         data = {"camera_id": CAMERA_ID, "confidence_score": score}
         try:
             r = requests.post(INCIDENT_UPLOAD_URL, files=files, data=data)
-            print("✅ Uploaded" if r.status_code == 200 else "❌ Upload failed:", r.text)
+            print("Uploaded" if r.status_code == 200 else "Upload failed:", r.text)
         except Exception as e:
-            print("❌ Upload error:", e)
+            print("Upload error:", e)
 
 def record_clip():
     incident_id = uuid.uuid4().hex
@@ -86,4 +87,4 @@ while True:
         os.rename(clip_path, new_path)
         upload_incident(new_path, score)
     else:
-        print("🟢 No violence detected")
+        print("No violence detected")

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import socket from "../api/socket";
@@ -7,35 +8,55 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
-  const [stats, setStats] = useState({ totalIncidents: 0, resolved: 0, unresolved: 0 });
-
-  // // Fetch past alerts & stats when component mounts
-  // useEffect(() => {
-  //   axios.get("http://localhost:5000/api/alerts")
-  //     .then((res) => setAlerts(res.data))
-  //     .catch((error) => {
-  //       console.error("Error fetching alerts:", error);
-  //       toast.error("Error fetching alerts");
-  //     });
-
-  //   axios.get("http://localhost:5000/api/incidents/stats")
-  //     .then((res) => setStats(res.data))
-  //     .catch((error) => {
-  //       console.error("Error fetching stats:", error);
-  //       toast.error("Error fetching stats");
-  //     });
-  // }, []);
+  const [stats, setStats] = useState({
+    totalIncidents: 0,
+    resolved: 0,
+    unresolved: 0,
+  });
+  const token = useSelector((state) => state.auth.token);
+  //Fetch past alerts & stats when component mounts
+  useEffect(() => {
+    try {
+      if (!token) return; // Ensure token exists
+      axios
+        .get(`${import.meta.env.VITE_BACKEND_URL}/api/incidents/stats`, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        })
+        .then((res) => setStats(res.data))
+        .catch((error) => {
+          console.error("Error fetching stats:", error);
+          toast.error("Error fetching stats");
+        });
+    } catch (error) {
+      console.error("Error fetching stats:", error.message);
+    }
+  }, []);
 
   // Listen for new alerts via WebSocket
   useEffect(() => {
     socket.on("new_alert", (alert) => {
-      setAlerts((prevAlerts) => [alert, ...prevAlerts]);
+      setAlerts((prevAlerts) => {
+        const updatedAlerts = [alert, ...prevAlerts];
+        localStorage.setItem("alerts", JSON.stringify(updatedAlerts));
+        return updatedAlerts;
+      });
+
       toast.error(`${alert.message} - Watch Video`);
     });
 
     return () => {
       socket.off("new_alert");
     };
+  }, []);
+
+  // Load alerts from localStorage when component mounts
+  useEffect(() => {
+    const storedAlerts = localStorage.getItem("alerts");
+    if (storedAlerts) {
+      setAlerts(JSON.parse(storedAlerts));
+    }
   }, []);
 
   return (
@@ -64,7 +85,10 @@ const Dashboard = () => {
         <h2 className="text-2xl font-semibold mt-8">Live Alerts</h2>
         <ul className="mt-4">
           {alerts.map((alert, index) => (
-            <li key={index} className="bg-red-100 p-3 my-2 border-l-4 border-red-500">
+            <li
+              key={index}
+              className="bg-red-100 p-3 my-2 border-l-4 border-red-500"
+            >
               {alert.message}
               {alert.video_url && (
                 <video controls className="w-64 h-36 rounded-lg shadow mt-2">
