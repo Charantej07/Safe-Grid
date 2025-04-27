@@ -28,7 +28,7 @@ const io = new Server(server, {
 });
 
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: "*",
   methods: "GET,POST,PUT,DELETE",
 };
 
@@ -83,7 +83,7 @@ const incidentRoutes = require("./routes/incidentRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/camera", cameraRoutes);
-app.use("/api/ai", aiRoutes); 
+app.use("/api/ai", aiRoutes);
 app.use("/api/incidents", incidentRoutes);
 
 const PORT = process.env.PORT || 5000;
