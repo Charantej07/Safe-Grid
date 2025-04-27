@@ -72,32 +72,53 @@ exports.uploadIncidentVideo = async (req, res) => {
     const newIncident = new Incident({
       camera_id,
       confidence_score,
-      video_url: req.files.file[0].location, 
+      video_url: req.files.file[0].location,
       storage_type: "cloud",
       status: "Unresolved",
     });
     await newIncident.save();
     const { io } = require("../app");
-    const { sendAlert } = require("../config/twilio");
+    const { sendAlert } = require("../config/twillio");
 
     io.emit("new_alert", {
       message: `⚠️ Threat detected at Camera ${camera_id}. Confidence: ${confidence_score}%`,
       confidence_score,
       video_url: req.files.file[0].location,
     });
+    try {
+      await sendAlert(
+        `⚠️ Threat detected at Camera ${camera_id}. Confidence: ${confidence_score}%.`
+      );
+      console.log("✅ Twilio sendAlert succeeded");
+    } catch (err) {
+      console.error("❌ Twilio sendAlert failed:", err);
+    }
 
-    sendAlert(
-      `⚠️ Threat detected at Camera ${camera_id}. Confidence: ${confidence_score}%. Watch: ${req.files.file[0].location}`
-    );
-
- 
     res.json({
       message: "Incident video uploaded successfully",
-      video_url: req.files.file[0].location, 
+      video_url: req.files.file[0].location,
     });
   } catch (err) {
     // Handle errors
     console.error("Error uploading incident video: ", err);
     res.status(500).json({ message: "Upload failed", error: err });
+  }
+};
+
+exports.getIncidentStats = async (req, res) => {
+  try {
+    const total = await Incident.countDocuments();
+    const resolved = await Incident.countDocuments({ status: "Resolved" });
+    const unresolved = await Incident.countDocuments({ status: "Unresolved" });
+
+    res.json({
+      totalIncidents: total,
+      resolved,
+      unresolved,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching stats", error: error.message });
   }
 };

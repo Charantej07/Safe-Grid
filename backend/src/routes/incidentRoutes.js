@@ -32,4 +32,11 @@ router.post(
   incidentController.uploadIncidentVideo
 );
 
+router.get(
+  "/stats",
+  authenticate,
+  authorizeRoles("admin", "security"),
+  incidentController.getIncidentStats
+);
+
 module.exports = router;
